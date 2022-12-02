@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const { application } = require('express');
 require('dotenv').config();
@@ -18,6 +19,27 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@clu
 // console.log(uri);
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
+
+
+function verifyJWT(req, res, next) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+        return res.status(401).send({ message: 'Unauthorized Access' })
+    }
+    const token = authHeader.split(' ')[1];
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
+        if (err) {
+            return res.status(401).send({ message: 'Unauthorized Access' })
+        }
+        req.decoded = decoded;
+        next()
+    })
+
+}
+
+
+
+
 async function api() {
     try {
         const categoriesColl = client.db('assignment12').collection('category');
@@ -29,6 +51,13 @@ async function api() {
         const allProductColl = client.db('assignment12').collection('products');
         const bookedColl = client.db('assignment12').collection('booked');
         const adsColl = client.db('assignment12').collection('ads');
+
+
+        app.post('/jwt', (req, res) => {
+            const user = req.body;
+            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '7d' })
+            res.send({ token });
+        })
 
 
         app.get('/', async (req, res) => {
@@ -134,6 +163,16 @@ async function api() {
             res.send(product);
         });
 
+        // Product Payment
+
+        app.get('/dashboard/dash1boar1db1/pay/:id', async (req, res) => {
+
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await bookedColl.findOne(query);
+            res.send(result);
+        })
+
         // Get the ads
 
         app.get('/ads', async (req, res) => {
@@ -217,6 +256,18 @@ async function api() {
             const user = await allProductColl.deleteOne(query);
             res.send(user);
         });
+
+        // Delete Product from Buyer's product
+
+        app.delete('/BuyerProduct/:id', async (req, res) => {
+            const id = req.params.id;
+            console.log(id);
+            const query = { _id: id };
+            console.log(query);
+            const user = await bookedColl.deleteOne(query);
+            res.send(user);
+        });
+
 
 
     }
