@@ -92,7 +92,10 @@ async function api() {
         });
 
 
+        /////// ok
 
+
+        //////
 
 
         app.get('/buyer/:email', async (req, res) => {
