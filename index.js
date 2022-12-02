@@ -95,13 +95,16 @@ async function api() {
 
         ////// 
 
-        // Get Buyer Products by his own email
+        // Buyer Gets ordered  Products by his own email
+
         app.get('/buyer/:email', async (req, res) => {
             const email = req.params.email;
             const query = { userEmail: email };
             const user = await userColl.findOne(query);
             res.send({ isBuyer: user?.userRole === 'Buyer' })
         });
+
+
         app.get('/seller/:email', async (req, res) => {
             const email = req.params.email;
             const query = { userEmail: email };
