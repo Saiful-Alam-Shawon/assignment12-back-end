@@ -92,9 +92,6 @@ async function api() {
         });
 
 
-
-        ////// 
-
         // Buyer Gets ordered  Products by his own email
 
         app.get('/buyer/:email', async (req, res) => {
