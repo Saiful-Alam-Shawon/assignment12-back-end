@@ -92,12 +92,10 @@ async function api() {
         });
 
 
-        /////// ok
-
 
         ////// 
 
-
+        // Get Buyer Products by his own email
         app.get('/buyer/:email', async (req, res) => {
             const email = req.params.email;
             const query = { userEmail: email };
